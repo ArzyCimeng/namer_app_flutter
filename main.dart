@@ -1,4 +1,6 @@
 //memasukan package yang dibutuhkan oleh aplikasi
+import 'dart:io';
+
 import 'package:english_words/english_words.dart'; //paket bahasa Ingris
 import 'package:flutter/material.dart'; //paket untuk tampilan UI (material UI)
 import 'package:provider/provider.dart'; //paket untuk interaksi aplikasi
@@ -52,6 +54,7 @@ class MyHomePage extends StatelessWidget {
     var appState =
         context.watch<MyAppState>(); //wingdet menggunakan state MyAppState
     //dibawah ini adalah kode proggram untuk menyusun layout
+    WordPair pair = appState.current;
 
     return Scaffold(
       //base (canvas) dari layout
@@ -60,8 +63,9 @@ class MyHomePage extends StatelessWidget {
         children: [
           //didalam kolom diberi teks
           Text('A random idea:'),
-          Text(appState.current
-              .asLowerCase), //mengambil random teks dari AppState pada variable wordpair curent, lalu diubah menjadi huruf kecil semua dari ditampilkan sebagai teks
+          BigCard(
+              pair:
+                  pair), //mengambil random teks dari AppState pada variable wordpair curent, lalu diubah menjadi huruf kecil semua dari ditampilkan sebagai teks
           ElevatedButton(
             onPressed: () {
               print('button pressed!');
@@ -70,6 +74,27 @@ class MyHomePage extends StatelessWidget {
             child: Text('Next'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class BigCard extends StatelessWidget {
+  const BigCard({
+    super.key,
+    required this.pair,
+  });
+
+  final WordPair pair;
+
+  @override
+  Widget build(BuildContext context) {
+    final Theme = Theme.of(context);
+    return Card(
+      color: theme.colorScheme.primary,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(pair.asLowerCase),
       ),
     );
   }
