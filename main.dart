@@ -1,4 +1,5 @@
 //memasukan package yang dibutuhkan oleh aplikasi
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:english_words/english_words.dart'; //paket bahasa Ingris
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           //data tema aplikasi, diberi warna deepOrange
           useMaterial3: true, //versi material UI yang dipakai versi 3
+
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
         home:
@@ -45,6 +47,17 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+
+  var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 //membuat layout pada halaman homepage
@@ -56,24 +69,46 @@ class MyHomePage extends StatelessWidget {
     //dibawah ini adalah kode proggram untuk menyusun layout
     WordPair pair = appState.current;
 
+    IconData icon;
+    if (appState.favorites.contains(pair)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
+
     return Scaffold(
       //base (canvas) dari layout
-      body: Column(
-        //diatas scaffold ada body, bodynya diberi kolom
-        children: [
-          //didalam kolom diberi teks
-          Text('A random idea:'),
-          BigCard(
-              pair:
-                  pair), //mengambil random teks dari AppState pada variable wordpair curent, lalu diubah menjadi huruf kecil semua dari ditampilkan sebagai teks
-          ElevatedButton(
-            onPressed: () {
-              print('button pressed!');
-              appState.getNext(); // ← This instead of print().
-            },
-            child: Text('Next'),
-          ),
-        ],
+      body: Center(
+        child: Column(
+          //diatas scaffold ada body, bodynya diberi kolom
+          children: [
+            //didalam kolom diberi teks
+            Text('A random idea:'),
+            BigCard(
+                pair:
+                    pair), //mengambil random teks dari AppState pada variable wordpair curent, lalu diubah menjadi huruf kecil semua dari ditampilkan sebagai teks
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Like'),
+                ),
+                SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    print('button pressed!');
+                    appState.getNext(); // ← This instead of print().
+                  },
+                  child: Text('Next'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -89,12 +124,22 @@ class BigCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Theme = Theme.of(context);
+    final theme = Theme.of(context);
+    // ↓ Add this.
+    final style = theme.textTheme.displayMedium!.copyWith(
+      color: theme.colorScheme.onPrimary,
+    );
+
     return Card(
       color: theme.colorScheme.primary,
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Text(pair.asLowerCase),
+        // ↓ Change this line.
+        child: Text(
+          pair.asLowerCase,
+          style: style,
+          semanticsLabel: "${pair.first} ${pair.second}",
+        ),
       ),
     );
   }
